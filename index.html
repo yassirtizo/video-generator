@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مولّد الفيديو الاحترافي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #111118;
+      --card:      #18181f;
+      --border:    #2a2a38;
+      --accent:    #7c3aed;
+      --accent2:   #a855f7;
+      --gold:      #f59e0b;
+      --text:      #e8e8f0;
+      --muted:     #6b6b80;
+      --success:   #10b981;
+      --error:     #ef4444;
+      --radius:    14px;
+      --glow:      0 0 30px rgba(124,58,237,.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background mesh ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(124,58,237,.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(168,85,247,.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 50% 50%, rgba(245,158,11,.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .logo-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, rgba(124,58,237,.2), rgba(168,85,247,.1));
+      border: 1px solid rgba(124,58,237,.3);
+      border-radius: 50px;
+      padding: 6px 20px;
+      font-size: 12px;
+      color: var(--accent2);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2) 70%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: rgba(124,58,237,.4); }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title span.icon {
+      width: 26px; height: 26px;
+      background: rgba(124,58,237,.15);
+      border-radius: 6px;
+      display: grid; place-items: center;
+      font-size: 14px;
+    }
+
+    /* ── Form elements ── */
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      padding: 12px 16px;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      direction: ltr;
+    }
+    textarea { resize: vertical; min-height: 100px; direction: ltr; }
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+    }
+    select option { background: var(--card); }
+
+    /* ── File upload ── */
+    .file-drop {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--surface);
+      position: relative;
+    }
+    .file-drop:hover, .file-drop.dragover {
+      border-color: var(--accent);
+      background: rgba(124,58,237,.05);
+    }
+    .file-drop input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .file-drop .drop-icon { font-size: 30px; margin-bottom: 8px; }
+    .file-drop .drop-text { font-size: 14px; color: var(--muted); }
+    .file-drop .drop-text strong { color: var(--accent2); }
+    .file-chosen {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(16,185,129,.08);
+      border: 1px solid rgba(16,185,129,.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--success);
+    }
+
+    /* ── Grid ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── Color pickers ── */
+    .color-row {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .color-row input[type="color"] {
+      width: 44px; height: 44px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 2px;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .color-row input[type="text"] { flex: 1; }
+
+    /* ── Range slider ── */
+    .range-wrap { display: flex; align-items: center; gap: 12px; }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      outline: none;
+      padding: 0;
+      border: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: var(--glow);
+    }
+    .range-val {
+      min-width: 40px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent2);
+      background: rgba(124,58,237,.1);
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+
+    /* ── Submit button ── */
+    .btn-generate {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+      box-shadow: 0 4px 24px rgba(124,58,237,.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-generate::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.1), transparent);
+    }
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(124,58,237,.5);
+    }
+    .btn-generate:active:not(:disabled) { transform: translateY(0); }
+    .btn-generate:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Progress ── */
+    #progress-section { display: none; }
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 50px;
+      height: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--gold));
+      border-radius: 50px;
+      width: 0%;
+      transition: width .4s ease;
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .progress-label {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex; justify-content: space-between;
+    }
+
+    /* ── Log box ── */
+    #log-box {
+      background: #0d0d14;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #7fba00;
+      max-height: 160px;
+      overflow-y: auto;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      margin-top: 12px;
+    }
+
+    /* ── Result ── */
+    #result-section {
+      display: none;
+      text-align: center;
+    }
+    .result-icon { font-size: 48px; margin-bottom: 12px; }
+    .result-title { font-size: 20px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
+    .result-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+    .btn-download {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none; border-radius: 12px;
+      color: #fff; font-family: 'Cairo', sans-serif;
+      font-size: 15px; font-weight: 700;
+      padding: 14px 32px; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(16,185,129,.3);
+      text-decoration: none;
+    }
+    .btn-download:hover { opacity: .9; }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 8px 0 18px;
+    }
+
+    /* ── Tooltip hint ── */
+    .hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    /* ── Error msg ── */
+    .error-msg {
+      background: rgba(239,68,68,.08);
+      border: 1px solid rgba(239,68,68,.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--error);
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-badge">✦ Video Generator Pro</div>
+    <h1>مولّد الفيديو الاحترافي</h1>
+    <p class="subtitle">أنشئ فيديو مع صوت وترجمات كاريوكي في ثوانٍ</p>
+  </header>
+
+  <!-- ① Quote -->
+  <div class="card">
+    <div class="card-title"><span class="icon">💬</span> الاقتباس</div>
+    <label>اكتب الاقتباس بالإنجليزية</label>
+    <textarea id="quote" placeholder="Enter your English quote here..."></textarea>
+    <p class="hint">سيتم تحويل النص إلى صوت تلقائياً وإنشاء ترجمات متزامنة.</p>
+  </div>
+
+  <!-- ② Files -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📁</span> الملفات</div>
+    <div class="grid-2">
+
+      <div>
+        <label>فيديو الخلفية (background)</label>
+        <div class="file-drop" id="bg-drop">
+          <input type="file" id="bg-file" accept="video/*" />
+          <div class="drop-icon">🎬</div>
+          <div class="drop-text">اسحب ملف الفيديو هنا أو <strong>اختر من جهازك</strong></div>
+        </div>
+        <div class="file-chosen" id="bg-chosen" style="display:none">
+          <span>✅</span><span id="bg-name"></span>
+        </div>
+      </div>
+
+      <div>
+        <label>ملف الموسيقى (background music)</label>
+        <div class="file-drop" id="music-drop">
+          <input type="file" id="music-file" accept="audio/*" />
+          <div class="drop-icon">🎵</div>
+          <div class="drop-text">اسحب ملف الصوت هنا أو <strong>اختر من جهازك</strong></div>
+        </div>
+        <div class="file-chosen" id="music-chosen" style="display:none">
+          <span>✅</span><span id="music-name"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ③ Typography & Colors -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎨</span> الخط والألوان</div>
+    <div class="grid-3">
+
+      <div>
+        <label>حجم الخط</label>
+        <div class="range-wrap">
+          <input type="range" id="font-size" min="40" max="150" value="75"
+                 oninput="document.getElementById('font-size-val').textContent=this.value" />
+          <span class="range-val" id="font-size-val">75</span>
+        </div>
+      </div>
+
+      <div>
+        <label>نوع الخط</label>
+        <select id="font-name">
+          <option value="Impact">Impact</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Comic Sans MS">Comic Sans MS</option>
+          <option value="Tahoma">Tahoma</option>
+        </select>
+      </div>
+
+      <div>
+        <label>سُمك الحدود (Outline)</label>
+        <div class="range-wrap">
+          <input type="range" id="outline-size" min="0" max="20" value="8"
+                 oninput="document.getElementById('outline-val').textContent=this.value" />
+          <span class="range-val" id="outline-val">8</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="grid-3">
+      <div>
+        <label>لون الكلمة النشطة</label>
+        <div class="color-row">
+          <input type="color" id="active-color-pick" value="#800080"
+                 oninput="syncColor(this,'active-color')" />
+          <input type="text" id="active-color" value="#800080"
+                 oninput="syncPicker(this,'active-color-pick')" />
+        </div>
+      </div>
+      <div>
+        <label>لون النص الافتراضي</label>
+        <div class="color-row">
+          <input type="color" id="default-color-pick" value="#ffffff"
+                 oninput="syncColor(this,'default-color')" />
+          <input type="text" id="default-color" value="#ffffff"
+                 oninput="syncPicker(this,'default-color-pick')" />
+        </div>
+      </div>
+      <div>
+        <label>لون الحدود (Outline)</label>
+        <div class="color-row">
+          <input type="color" id="outline-color-pick" value="#000000"
+                 oninput="syncColor(this,'outline-color')" />
+          <input type="text" id="outline-color" value="#000000"
+                 oninput="syncPicker(this,'outline-color-pick')" />
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="grid-2">
+      <div>
+        <label>موضع الترجمة</label>
+        <select id="alignment">
+          <option value="5">وسط الشاشة (5)</option>
+          <option value="2">أسفل الشاشة (2)</option>
+          <option value="8">أعلى الشاشة (8)</option>
+        </select>
+      </div>
+      <div>
+        <label>تأخير بدء الكلام (ثانية)</label>
+        <div class="range-wrap">
+          <input type="range" id="voice-delay" min="0" max="5" value="2" step="0.5"
+                 oninput="document.getElementById('delay-val').textContent=this.value" />
+          <span class="range-val" id="delay-val">2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ Voice -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🗣️</span> الصوت</div>
+    <div class="grid-2">
+      <div>
+        <label>اختر الصوت</label>
+        <select id="voice">
+          <option value="en-US-ChristopherNeural">Christopher (ذكر - US)</option>
+          <option value="en-US-JennyNeural">Jenny (أنثى - US)</option>
+          <option value="en-GB-RyanNeural">Ryan (ذكر - UK)</option>
+          <option value="en-GB-SoniaNeural">Sonia (أنثى - UK)</option>
+          <option value="en-AU-WilliamNeural">William (ذكر - AU)</option>
+        </select>
+      </div>
+      <div>
+        <label>مستوى صوت الموسيقى</label>
+        <div class="range-wrap">
+          <input type="range" id="music-volume" min="0" max="1" value="0.4" step="0.05"
+                 oninput="document.getElementById('music-vol-val').textContent=Math.round(this.value*100)+'%'" />
+          <span class="range-val" id="music-vol-val">40%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate button -->
+  <button class="btn-generate" id="gen-btn" onclick="generateVideo()">
+    ⚡ توليد الفيديو
+  </button>
+  <div class="error-msg" id="err-msg"></div>
+
+  <!-- Progress -->
+  <div class="card" id="progress-section" style="margin-top:20px">
+    <div class="card-title"><span class="icon">⏳</span> جارٍ المعالجة…</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-bar"></div>
+    </div>
+    <div class="progress-label">
+      <span id="prog-status">تهيئة…</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div id="log-box"></div>
+  </div>
+
+  <!-- Result -->
+  <div class="card" id="result-section" style="margin-top:20px">
+    <div class="result-icon">🎉</div>
+    <div class="result-title">تم إنشاء الفيديو بنجاح!</div>
+    <div class="result-sub">فيديوك جاهز للتنزيل</div>
+    <a id="download-link" href="#" class="btn-download" download="final_output.mp4">
+      ⬇️ تنزيل الفيديو
+    </a>
+  </div>
+
+</div>
+
+<script>
+// ── Color sync helpers ──────────────────────────────────────────────────────
+function hexToAssColor(hex) {
+  // #RRGGBB → &H00BBGGRR (ASS format, no alpha)
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+  const r = hex.slice(0,2), g = hex.slice(2,4), b = hex.slice(4,6);
+  return `&H00${b}${g}${r}`.toUpperCase();
+}
+function syncColor(picker, textId) {
+  document.getElementById(textId).value = picker.value;
+}
+function syncPicker(input, pickerId) {
+  const v = input.value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v))
+    document.getElementById(pickerId).value = v;
+}
+
+// ── File drop visual ────────────────────────────────────────────────────────
+function setupFileDrop(dropId, fileId, chosenId, nameId) {
+  const drop = document.getElementById(dropId);
+  const file = document.getElementById(fileId);
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault(); drop.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) {
+      file.files = e.dataTransfer.files;
+      showChosen(chosenId, nameId, e.dataTransfer.files[0].name);
+    }
+  });
+  file.addEventListener('change', () => {
+    if (file.files[0]) showChosen(chosenId, nameId, file.files[0].name);
+  });
+}
+function showChosen(chosenId, nameId, name) {
+  document.getElementById(chosenId).style.display = 'flex';
+  document.getElementById(nameId).textContent = name;
+}
+setupFileDrop('bg-drop',    'bg-file',    'bg-chosen',    'bg-name');
+setupFileDrop('music-drop', 'music-file', 'music-chosen', 'music-name');
+
+// ── Log helper ──────────────────────────────────────────────────────────────
+function log(msg) {
+  const box = document.getElementById('log-box');
+  box.textContent += msg + '\n';
+  box.scrollTop = box.scrollHeight;
+}
+function setProgress(pct, status) {
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-status').textContent = status;
+}
+
+// ── Main generate ───────────────────────────────────────────────────────────
+async function generateVideo() {
+  const err = document.getElementById('err-msg');
+  err.style.display = 'none';
+
+  const quote      = document.getElementById('quote').value.trim();
+  const bgFile     = document.getElementById('bg-file').files[0];
+  const musicFile  = document.getElementById('music-file').files[0];
+
+  if (!quote)     return showErr('الرجاء إدخال الاقتباس.');
+  if (!bgFile)    return showErr('الرجاء اختيار فيديو الخلفية.');
+  if (!musicFile) return showErr('الرجاء اختيار ملف الموسيقى.');
+
+  // Gather settings
+  const settings = {
+    quote,
+    voice:        document.getElementById('voice').value,
+    font_name:    document.getElementById('font-name').value,
+    font_size:    parseInt(document.getElementById('font-size').value),
+    outline_size: parseInt(document.getElementById('outline-size').value),
+    alignment:    parseInt(document.getElementById('alignment').value),
+    voice_delay:  parseFloat(document.getElementById('voice-delay').value),
+    music_volume: parseFloat(document.getElementById('music-volume').value),
+    active_color:  hexToAssColor(document.getElementById('active-color').value),
+    default_color: hexToAssColor(document.getElementById('default-color').value),
+    outline_color: hexToAssColor(document.getElementById('outline-color').value),
+  };
+
+  // Build form data
+  const fd = new FormData();
+  fd.append('bg_file',    bgFile);
+  fd.append('music_file', musicFile);
+  fd.append('settings',   JSON.stringify(settings));
+
+  // UI switch
+  document.getElementById('gen-btn').disabled = true;
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('progress-section').style.display = 'block';
+  document.getElementById('log-box').textContent = '';
+  setProgress(5, 'رفع الملفات…');
+  log('⏫ جارٍ رفع الملفات إلى الخادم...');
+
+  try {
+    const res = await fetch('/generate', { method: 'POST', body: fd });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(txt || 'خطأ في الخادم');
+    }
+
+    setProgress(30, 'توليد الصوت والترجمات…');
+    log('🎙️ جارٍ توليد الصوت...');
+
+    // Poll status
+    await pollStatus();
+
+  } catch (e) {
+    showErr('❌ ' + e.message);
+    document.getElementById('progress-section').style.display = 'none';
+    document.getElementById('gen-btn').disabled = false;
+  }
+}
+
+async function pollStatus() {
+  for (let i = 0; i < 180; i++) {
+    await sleep(2000);
+    try {
+      const res  = await fetch('/status');
+      const data = await res.json();
+
+      setProgress(data.progress, data.message);
+      if (data.log) log(data.log);
+
+      if (data.done) {
+        setProgress(100, 'اكتمل!');
+        log('✅ تم إنشاء الفيديو بنجاح!');
+        document.getElementById('download-link').href = '/download';
+        document.getElementById('result-section').style.display = 'block';
+        document.getElementById('gen-btn').disabled = false;
+        return;
+      }
+      if (data.error) throw new Error(data.error);
+    } catch (e) {
+      if (e.message !== 'Failed to fetch') throw e;
+    }
+  }
+  throw new Error('انتهت مهلة الانتظار. حاول مجدداً.');
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
